@@ -1,0 +1,50 @@
+# Autor: Kaylee Paez
+
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+
+steps:
+- task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@1
+  displayName: 'Install Terraform 1.3.9'
+  inputs:
+    terraformVersion: 1.3.9
+
+- task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV4@4
+  displayName: 'Terraform init'
+  inputs:
+    backendAzureRmUseEnvironmentVariablesForAuthentication: false
+    backendAzureRmUseEntraIdForAuthentication: false
+    backendServiceArm: '{Your Azure Subscription}'
+    backendAzureRmResourceGroupName: '{Your Azure Resource Group Name}'
+    backendAzureRmStorageAccountName: '{Your Azure Storage Account Name}'
+    backendAzureRmContainerName: '{Your Azure Storage Account's Container Name}'
+    backendAzureRmKey: sample.terraform.tfstate
+
+- task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV4@4
+  displayName: 'Terraform validate'
+  inputs:
+    command: validate
+    backendAzureRmUseEnvironmentVariablesForAuthentication: false
+    backendAzureRmUseEntraIdForAuthentication: false
+
+- task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV4@4
+  displayName: 'Terraform plan'
+  inputs:
+    command: plan
+    commandOptions: '-var-file="./vars/sample.tfvars"'
+    environmentServiceNameAzureRM: '{Your Azure Resource Group Name}'
+    backendAzureRmUseEnvironmentVariablesForAuthentication: false
+    backendAzureRmUseEntraIdForAuthentication: false
+
+- task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV4@4
+  displayName: 'Terraform apply'
+  inputs:
+    command: apply
+    commandOptions: '--auto-approve'
+    environmentServiceNameAzureRM: '{Your Azure Resource Group Name}'
+    backendAzureRmUseEnvironmentVariablesForAuthentication: false
+    backendAzureRmUseEntraIdForAuthentication: false
